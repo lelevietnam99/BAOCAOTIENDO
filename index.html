@@ -4,94 +4,1542 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chấm Điểm Võ Sinh - Phật Quang Quyền</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 20px; }
-        h2 { text-align: center; color: #333; }
-        .control-panel { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        select, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Nunito', sans-serif; background-color: #f0f4f8; color: #334155; padding: 30px 15px; display: flex; justify-content: center; }
+        .container { background: #ffffff; width: 100%; max-width: 1300px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 30px; }
+        h2 { text-align: center; color: #1e293b; font-weight: 800; font-size: 24px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+        h2 span { color: #ea580c; } 
         
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
-        th { background-color: #343a40; color: white; }
-        tr:hover { filter: brightness(0.95); cursor: pointer; }
+        .control-panel { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        select { padding: 12px 20px; font-size: 15px; font-family: 'Nunito'; font-weight: 600; border-radius: 10px; border: 2px solid #e2e8f0; outline: none; color: #475569; cursor: pointer; transition: all 0.2s; }
+        select:focus { border-color: #3b82f6; }
+        button.btn-primary { background-color: #3b82f6; color: white; border: none; padding: 12px 25px; font-size: 15px; font-family: 'Nunito'; font-weight: 700; border-radius: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); }
+        button.btn-primary:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3); }
+
+        #loading { display: none; text-align: center; font-weight: 700; color: #3b82f6; margin-bottom: 20px; background: #eff6ff; padding: 12px; border-radius: 8px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+        .table-responsive { width: 100%; overflow-x: auto; border-radius: 10px; }
+        table { width: 100%; min-width: 1200px; border-collapse: separate; border-spacing: 0; }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        th { background-color: #f8fafc; color: #64748b; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* Modal Popup */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal { background: white; padding: 25px; border-radius: 8px; width: 450px; max-width: 90%; }
-        .checkbox-item { display: block; margin: 10px 0; font-size: 16px; cursor: pointer; }
-        .checkbox-item input { margin-right: 10px; transform: scale(1.3); }
-        .btn-close { background-color: #dc3545; }
+        /* Hiệu ứng nhấp chuột */
+        .dong-do { background-color: #fff1f2; } 
+        .dong-xanh { background-color: #f0fdf4; } 
+        .clickable-cell { cursor: pointer; transition: background-color 0.2s; border-radius: 6px; }
+        .dong-do .clickable-cell:hover { background-color: #fecdd3; }
+        .dong-xanh .clickable-cell:hover { background-color: #bbf7d0; }
+
+        .badge-ty-le { display: inline-block; padding: 5px 12px; border-radius: 20px; font-weight: 800; font-size: 14px; }
+        .dong-do .badge-ty-le { background: #fecdd3; color: #be123c; }
+        .dong-xanh .badge-ty-le { background: #bbf7d0; color: #15803d; }
+        .badge-cap-dai { background:#e2e8f0; padding:4px 8px; border-radius:6px; font-size:13px; font-weight:600; display: inline-block; color: #334155; }
+
+        a.action-link { color: #3b82f6; text-decoration: none; font-weight: 700; background: #eff6ff; padding: 4px 10px; border-radius: 6px; display: inline-block; transition: all 0.2s; }
+        a.action-link:hover { background: #3b82f6; color: white; }
+
+        /* Khung Modal chung */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 16px; width: 500px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: scale(0.95); animation: modalFadeIn 0.2s forwards; }
+        @keyframes modalFadeIn { to { transform: scale(1); opacity: 1; } }
+        .modal h3 { color: #0f172a; margin-bottom: 20px; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
         
-        /* Loading spinner */
-        #loading { display: none; text-align: center; font-weight: bold; color: #007bff; margin-bottom: 15px; }
-        .dong-do { background-color: #f8d7da; }
-        .dong-xanh { background-color: #d4edda; }
+        .checkbox-item { display: flex; align-items: center; margin: 12px 0; font-size: 16px; font-weight: 600; color: #334155; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: background 0.2s; }
+        .checkbox-item:hover { background: #f8fafc; }
+        .checkbox-item input { margin-right: 15px; width: 20px; height: 20px; accent-color: #10b981; cursor: pointer; }
+          /* --- NEW: grid layout cho danh sách checkbox trong modal --- */
+        #modalCheckboxList { max-height: 420px; overflow-y: auto; padding-right: 8px; }
+        .checkbox-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+            gap: 8px; 
+            align-items: start;
+        }
+        /* giảm khoảng cách mặc định giữa label khi hiển thị thành ô */
+        .checkbox-grid .checkbox-item { margin: 4px; padding: 10px; background: #fff; border: 1px solid #f1f5f9; }
+        /* --- END NEW --- */
+        ol.chi-tiet-list { padding-left: 20px; line-height: 1.8; color: #334155; font-weight: 600; max-height: 300px; overflow-y: auto; }
+        ol.chi-tiet-list li { margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 5px; }
+
+        textarea.ghi-chu-box { width: 100%; height: 120px; padding: 15px; border-radius: 10px; border: 2px solid #e2e8f0; font-family: 'Nunito'; font-size: 15px; resize: none; outline: none; transition: border 0.2s; }
+        textarea.ghi-chu-box:focus { border-color: #3b82f6; }
+
+        .modal-footer { text-align: right; margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;}
+        button.btn-close { background-color: #e2e8f0; color: #475569; border: none; padding: 10px 20px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+        button.btn-close:hover { background-color: #cbd5e1; }
+        button.btn-save { background-color: #10b981; color: white; border: none; padding: 10px 20px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        button.btn-save:hover { background-color: #059669; transform: translateY(-2px); }
+
+        /* Tiện ích để ép xuống dòng cho cột ghi chú */
+        .box-ghi-chu { 
+            white-space: pre-line; 
+            line-height: 1.5; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 3; /* Tối đa 3 dòng */
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
     </style>
 </head>
 <body>
 
-    <h2>🥋 HỆ THỐNG CHẤM ĐIỂM TIẾN ĐỘ</h2>
-    
-    <div class="control-panel">
-        <select id="clubSelect">
-            <option value="Trần Đại Nghĩa">CLB Trần Đại Nghĩa</option>
-            <option value="Phú Mỹ">CLB Phú Mỹ</option>
+    <div class="container">
+         <h2>🥋 HỆ THỐNG QUẢN LÝ TIẾN ĐỘ<br><span>MÔN PHÁI PHẬT QUANG QUYỀN</span></h2>
+        
+        <div class="control-panel">
+            <select id="clubSelect">
+                <option value="1. CLB Bảo Quang">📍 1. CLB Bảo Quang</option>
+<option value="2. CLB Đại Học Khoa Học Sức Khỏe">📍 2. CLB Đại Học Khoa Học Sức Khỏe</option>
+<option value="3. CLB Đại học Ngân hàng">📍 3. CLB Đại học Ngân hàng</option>
+<option value="4. CLB Đăng Quang">📍 4. CLB Đăng Quang</option>
+<option value="5. CLB Định Quang">📍 5. CLB Định Quang</option>
+<option value="6. CLB Linh Thông">📍 6. CLB Linh Thông</option>
+<option value="7. CLB Long Đức - Võ Đường Phước Quang">📍 7. CLB Long Đức - Võ Đường Phước Quang</option>
+<option value="8. CLB Nguyễn Bỉnh Khiêm">📍 8. CLB Nguyễn Bỉnh Khiêm</option>
+<option value="9. CLB Nguyễn Trãi">📍 9. CLB Nguyễn Trãi</option>
+<option value="10. CLB Phước Quang - Võ Đường Phước Quang">📍 10. CLB Phước Quang - Võ Đường Phước Quang</option>
+<option value="11. CLB Phước Quang 2 - Võ Đường Phước Quang">📍 11. CLB Phước Quang 2 - Võ Đường Phước Quang</option>
+<option value="12. CLB Quang Phúc">📍 12. CLB Quang Phúc</option>
+<option value="13. CLB Quận 7">📍 13. CLB Quận 7</option>
+<option value="14. CLB Quân khu 7">📍 14. CLB Quân khu 7</option>
+<option value="15. CLB Tây Ninh">📍 15. CLB Tây Ninh</option>
+<option value="16. CLB Thái Minh">📍 16. CLB Thái Minh</option>
+<option value="17. CLB Trần Đại Nghĩa">📍 17. CLB Trần Đại Nghĩa</option>
+<option value="18. CLB Xuân Lộc - Võ Đường Phước Quang">📍 18. CLB Xuân Lộc - Võ Đường Phước Quang</option>
+<option value="19. Võ đường Hồng Quang">📍 19. Võ đường Hồng Quang</option>
+<option value="20. Võ đường Hồng Quang - CLB Bửu Lâm">📍 20. Võ đường Hồng Quang - CLB Bửu Lâm</option>
+<option value="21. Võ Đường Trí Vũ">📍 21. Võ Đường Trí Vũ</option>
+<option value="22. CLB Võ cổ truyền Chùa Huệ Lâm">📍 22. CLB Võ cổ truyền Chùa Huệ Lâm</option>
+<option value="23. CLB Võ cổ truyền Pleiku Xanh">📍 23. CLB Võ cổ truyền Pleiku Xanh</option>
+<option value="24. CLB võ cổ truyền Tiến Quang">📍 24. CLB võ cổ truyền Tiến Quang</option>
+<option value="25. CLB võ cổ truyền TP Vinh 1">📍 25. CLB võ cổ truyền TP Vinh 1</option>
+<option value="26. CLB võ cổ truyền TP Vinh 2">📍 26. CLB võ cổ truyền TP Vinh 2</option>
+<option value="27. CLB Võ cổ truyền Vũ Minh">📍 27. CLB Võ cổ truyền Vũ Minh</option>
+<option value="28. CLB võ cổ truyền Xanh Tuệ Đức">📍 28. CLB võ cổ truyền Xanh Tuệ Đức</option>
+<option value="29. Võ đường Viên Quang">📍 29. Võ đường Viên Quang</option>
+<option value="30. CLB Bắc Ninh">📍 30. CLB Bắc Ninh</option>
+<option value="31. CLB Đông Quang">📍 31. CLB Đông Quang</option>
+<option value="32. CLB Hải Dương">📍 32. CLB Hải Dương</option>
+<option value="33. CLB Hải Lâm">📍 33. CLB Hải Lâm</option>
+<option value="34. CLB Hải Phòng">📍 34. CLB Hải Phòng</option>
+<option value="35. CLB Hoàng Xá">📍 35. CLB Hoàng Xá</option>
+<option value="36. CLB Hưng Long - Thái Bình">📍 36. CLB Hưng Long - Thái Bình</option>
+<option value="37. CLB Linh Quang">📍 37. CLB Linh Quang</option>
+<option value="38. CLB Linh Sơn - Thái Nguyên">📍 38. CLB Linh Sơn - Thái Nguyên</option>
+<option value="39. CLB Mễ Trì">📍 39. CLB Mễ Trì</option>
+<option value="40. CLB Ninh Bình">📍 40. CLB Ninh Bình</option>
+<option value="41. CLB Phổ Quang">📍 41. CLB Phổ Quang</option>
+<option value="42. CLB Võ cổ truyền chùa Hương Lâm">📍 42. CLB Võ cổ truyền chùa Hương Lâm</option>
+<option value="43. CLB võ cổ truyền Kim Liên">📍 43. CLB võ cổ truyền Kim Liên</option>
+<option value="44. CLB võ cổ truyền Việt Nam tại Nhật Bản - Khu vực Kanagawa">📍 44. CLB võ cổ truyền Việt Nam tại Nhật Bản - Khu vực Kanagawa</option>
+<option value="45. CLB võ cổ truyền Việt Nam tại Nhật Bản - Khu vực Osaka">📍 45. CLB võ cổ truyền Việt Nam tại Nhật Bản - Khu vực Osaka</option>
             </select>
-        <button onclick="taiDanhSach()">Tải Danh Sách</button>
+            <button class="btn-primary" onclick="taiDanhSach()">🔄 Tải Danh Sách</button>
+        </div>
+
+        <div id="loading">⏳ Đang đồng bộ dữ liệu từ đám mây...</div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th style="width: 150px;">Họ và Tên</th>
+                        <th style="width: 120px;">Cấp đai</th>
+                        <th style="width: 200px;">Đã hoàn thành</th>
+                        <th style="width: 200px;">Chưa hoàn thành</th>
+                        <th style="text-align: center; width: 100px;">Tiến độ</th>
+                        <th style="width: 100px;">Dự Thi</th>
+                        <th style="width: 100px;">Profile</th>
+                        <th style="width: 150px;">Ghi chú</th>
+                        <th style="width: 150px;">Cập nhật</th>
+                    </tr>
+                </thead>
+                <tbody id="duLieuBang">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
-    <div id="loading">⏳ Đang đồng bộ dữ liệu từ Google Sheets...</div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>Họ tên</th>
-                <th>Cấp đai</th>
-                <th>Đã hoàn thành</th>
-                <th>Tỷ lệ</th>
-                <th>Ngày cập nhật</th>
-            </tr>
-        </thead>
-        <tbody id="duLieuBang"></tbody>
-    </table>
-
-    <div class="modal-overlay" id="myModal">
+    <div class="modal-overlay" id="modalChamDiem">
         <div class="modal">
-            <h3 id="modalTitle">Đánh giá</h3>
+            <h3 id="modalTitleChamDiem">📋 Đánh giá Võ sinh</h3>
             <div id="modalCheckboxList"></div>
-            <div style="text-align: right; margin-top: 20px;">
-                <button class="btn-close" onclick="dongModal()">Đóng</button>
-                <button onclick="luuDanhGia()" id="btnSave">💾 Lưu Lên Mây</button>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="dongModal('modalChamDiem')">Đóng</button>
+                <button class="btn-save" onclick="luuDanhGia()" id="btnSaveChamDiem">💾 Lưu Kết Quả</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalChiTiet">
+        <div class="modal">
+            <h3 id="modalTitleChiTiet">🔍 Chi tiết các bài</h3>
+            <ol id="danhSachChiTiet" class="chi-tiet-list"></ol>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="dongModal('modalChiTiet')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalGhiChu">
+        <div class="modal">
+            <h3>📝 Nhập Ghi Chú</h3>
+            <textarea id="txtGhiChu" class="ghi-chu-box" placeholder="Nhập nhận xét về võ sinh vào đây..."></textarea>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="dongModal('modalGhiChu')">Đóng</button>
+                <button class="btn-save" onclick="luuGhiChu()" id="btnSaveGhiChu">💾 Lưu Ghi Chú</button>
             </div>
         </div>
     </div>
 
     <script>
         // === BẠN DÁN LINK GOOGLE APPS SCRIPT VÀO ĐÂY ===
-        const API_URL = "https://script.google.com/macros/s/AKfycbyEiJ3_fV6ORVVCtUh-mrRhqFCdl_CBNsZkVvLU45XXo1MO8yjsiOYXrpwMrQE0WIDjwg/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbxoWTmrwSpeoGxRarwW_NAo81rHNcsVYOAaQrclJ6QL6gn21B0Q1bDxXu-5gAPv--PE4w/exec"; 
         // ===============================================
 
         const CHUNG_TRINH_HOC = {
-            "Nâu đai": [
-                "Quyền Tấn Pháp", "Căn Bản Công 27", "Đối luyện 1: Cơn bão đầu mùa",
-                "Đối luyện 2: Tiếc một cành hoa", "Tự vệ 1: Phản bóp cổ trước",
-                "Tự vệ 2: Phản nắm tóc", "Lý thuyết võ đạo"
-            ],
-            "Lam đai I": ["Đường Lang Quyền", "Căn Bản Công 36"]
+            "Cấp 0 - Nâu đai": [
+        "Quyền Tấn Pháp", 
+        "Căn Bản Công 27", 
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1"
+    ],
+            "Cấp 1 - Lam đai I": [
+        // --- CÁC BÀI QUYỀN VÀ CĂN BẢN MỚI ---
+        "Đường Lang Quyền", 
+        "Căn Bản Công 36",
+        
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ NÂU ĐAI ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        
+        // --- KẾ THỪA TỰ VỆ TỪ NÂU ĐAI ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        
+        // --- TỰ VỆ MỚI ---
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2"
+    ],
+        "Cấp 2 - Lam đai II": [
+        // --- CÁC BÀI QUYỀN VÀ CĂN BẢN MỚI ---
+        "Trấn Sơn Tất", 
+        "Căn Bản Công 45",
+        
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        
+        // --- TỰ VỆ MỚI ---
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 3 - Lam đai III": [
+        // --- CÁC BÀI QUYỀN V VÀ CĂN BẢN MỚI ---
+        "Lục Hợp Quyền",
+        "Lão Hổ Thượng Sơn",
+        
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 4 - Lam đai IV": [
+        // --- CÁC BÀI QUYỀN MỚI ---
+        "Nhị Thập Tứ cước",
+        "Bạch Hạc Sơn Quyền",
+        
+        // --- ÔN LUYỆN QUYỀN VÀ CĂN BẢN ---
+        "Ôn tập: Các bài quyền môn phái, Liên đoàn đã học",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 5 - Lục đai I": [
+        // --- CÁC BÀI QUYỀN, ĐAO PHÁP & SONG LUYỆN MỚI ---
+        "Lãng Khách Du Xuân",
+        "Nhập Môn đao Pháp",
+        "Ngọc Trản Quyền",
+        "Song luyện 1",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 6 - Lục đai II": [
+        // --- CÁC BÀI QUYỀN, CÔN PHÁP & SONG LUYỆN MỚI ---
+        "Mãn Thiên Hoa Vũ",
+        "Nhập môn côn Pháp",
+        "Hùng Kê Quyền",
+        "Song luyện Côn 1",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 7 - Lục đai III": [
+        // --- CÁC BÀI QUYỀN, KIẾM PHÁP & SONG LUYỆN MỚI ---
+        "Long Hổ Song Hình Quyền",
+        "Tam Thập Lục Kiếm Pháp",
+        "Lão mai quyền",
+        "Song luyện Kiếm 1",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 8 - Lục đai IV": [
+        // --- CÁC BÀI QUYỀN, KIẾM PHÁP & SONG LUYỆN MỚI ---
+        "Phật Quang Chấn Môn Quyền",
+        "Thanh long Độc kiếm",
+        "Song luyện 2",
+
+        // --- ÔN LUYỆN QUYỀN VÀ CĂN BẢN ---
+        "Ôn luyện: Các bài quyền đã học, kiểm tra lại 1 trong các bài khi thi lên đai",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 9 - Hồng đai I": [
+        // --- CÁC BÀI QUYỀN, KIẾM PHÁP & SONG LUYỆN MỚI ---
+        "Phong vân quyền",
+        "Tự chọn phân 3 thế trong bài (Quyền môn phái)",
+        "Song Tuyết Kiếm",
+        "Tự chọn phân 3 thế (Quyền liên đoàn)",
+        "Bát Nhã Chưởng (30 thế Võ Tát)",
+        "Song Luyện: Bát Nhã Chưởng",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 10 - Hồng đai II": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & SONG LUYỆN MỚI ---
+        "Long Tượng Côn",
+        "Tự chọn phân 3 thế trong bài (Quyền môn phái)",
+        "Phong Hoa Đao",
+        "Tự chọn phân 3 thế (Quyền liên đoàn)",
+        "Song luyện 3",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 11 - Hồng đai III": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & SONG LUYỆN MỚI ---
+        "Vô úy đao",
+        "Tự chọn phân 3 thế trong bài (Quyền môn phái)",
+        "Thái Sơn Côn",
+        "Tự chọn phân 3 thế trong bài (Quyền liên đoàn)",
+        "Song luyện: Mùa xuân đãi khách",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 (12 động tác) ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-40) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 12 - Hồng đai IV": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & SONG LUYỆN MỚI ---
+        "Liên Hoa Kiếm",
+        "Tự chọn phân 3 thế trong bài (Quyền môn phái)",
+        "Kiểm tra bất kỳ các bài quyền môn phái đã học",
+        "Siêu Xung Thiên",
+        "Tự chọn phân 3 thế trong bài (Quyền liên đoàn)",
+        "Song luyện: Bốc thăm (SL PQQ 3, SL mùa xuân đãi khách)",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nếu bốc thăm/lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-45) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 13 - Hoàng đai I": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & SONG LUYỆN MỚI ---
+        "Tam Long Tuyệt Thần đao",
+        "Thanh liên kiếm",
+        "Chỉ định phân 3 thế trong bài (Quyền môn phái)",
+        "Độc Lư Thương",
+        "Chỉ định phân 3 thế trong bài (Quyền liên đoàn)",
+        "Song luyện 4",
+
+        // --- KỸ THUẬT MỚI ---
+        "30 Thế hoạt thủ pháp",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nếu bốc thăm/lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-50) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 14 - Hoàng đai II": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & SONG LUYỆN MỚI ---
+        "Kim long thương",
+        "Phong Vân Tán",
+        "Chỉ định phân 3 thế trong bài (Quyền môn phái)",
+        "Huỳnh Long độc kiếm",
+        "Chỉ định phân 3 thế trong bài (Quyền liên đoàn)",
+        "Song luyện kiếm II",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nếu bốc thăm/lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-50) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 51: Mở Cửa Chào Khách",
+        "Đối luyện 52: Cuồn Cuộn Sóng Xô",
+        "Đối luyện 53: Duyên Dáng Mùa Xuân",
+        "Đối luyện 54: Níu Giữ Thời Gian",
+        "Đối luyện 55: Ăn Một Trả Hai",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 15 - Hoàng đai III": [
+        // --- CÁC BÀI QUYỀN & BINH KHÍ MỚI ---
+        "Du Long Phiến",
+        "Kim cang song giản",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngư",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nếu bốc thăm/lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-55) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+        "Đối luyện 51: Mở Cửa Chào Khách",
+        "Đối luyện 52: Cuồn Cuộn Sóng Xô",
+        "Đối luyện 53: Duyên Dáng Mùa Xuân",
+        "Đối luyện 54: Níu Giữ Thời Gian",
+        "Đối luyện 55: Ăn Một Trả Hai",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 56: Kéo Thuyền Về Bến",
+        "Đối luyện 57: Song Long Xuất Hải",
+        "Đối luyện 58: Chỉ Một Cành Hoa",
+        "Đối luyện 59: Xin Chút Lòng Thương",
+        "Đối luyện 60: Chặt Cành Bẻ Lá",
+        // Bạn bổ sung thế 59 và 60 nếu có trong tài liệu nhé vì ảnh bị mất phần dưới ạ
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 16 - Hoàng đai IV": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & SONG LUYỆN MỚI ---
+        "Minh Nguyệt Song Đao",
+        "Hàn Long Phục hổ Quyền",
+        "Chỉ định phân 3 thế mỗi trong bài (Quyền môn phái)",
+        "Bát Quái côn",
+        "Song luyện côn",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngự",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nếu bốc thăm/lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-60) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+        "Đối luyện 51: Mở Cửa Chào Khách",
+        "Đối luyện 52: Cuồn Cuộn Sóng Xô",
+        "Đối luyện 53: Duyên Dáng Mùa Xuân",
+        "Đối luyện 54: Níu Giữ Thời Gian",
+        "Đối luyện 55: Ăn Một Trả Hai",
+        "Đối luyện 56: Kéo Thuyền Về Bến",
+        "Đối luyện 57: Song Long Xuất Hải",
+        "Đối luyện 58: Chỉ Một Cành Hoa",
+        "Đối luyện 59: Xin Chút Lòng Thương",
+        "Đối luyện 60: Chặt Cành Bẻ Lá",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 61: Bốn Chưởng Liên Hoàn",
+        "Đối luyện 62: Chim Nhảy Chuyền Cành",
+        "Đối luyện 63: Tiên Nữ Hái Đào",
+        "Đối luyện 64: Tiểu Đồng Đùa Cọp",
+        "Đối luyện 65: Bóng Không Rời Hình",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ],
+    "Cấp 17 - Chuẩn Bạch Đai": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ MỚI ---
+        "Tiên Long long song kiếm",
+        "Tam long hý nguyệt",
+        "Lôi long đao",
+        "Chỉ định phân 5 thế trong mỗi bài",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngự",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nếu bốc thăm/lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-65) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+        "Đối luyện 51: Mở Cửa Chào Khách",
+        "Đối luyện 52: Cuồn Cuộn Sóng Xô",
+        "Đối luyện 53: Duyên Dáng Mùa Xuân",
+        "Đối luyện 54: Níu Giữ Thời Gian",
+        "Đối luyện 55: Ăn Một Trả Hai",
+        "Đối luyện 56: Kéo Thuyền Về Bến",
+        "Đối luyện 57: Song Long Xuất Hải",
+        "Đối luyện 58: Chỉ Một Cành Hoa",
+        "Đối luyện 59: Xin Chút Lòng Thương",
+        "Đối luyện 60: Chặt Cành Bẻ Lá",
+        "Đối luyện 61: Bốn Chưởng Liên Hoàn",
+        "Đối luyện 62: Chim Nhảy Chuyền Cành",
+        "Đối luyện 63: Tiên Nữ Hái Đào",
+        "Đối luyện 64: Tiểu Đồng Đùa Cọp",
+        "Đối luyện 65: Bóng Không Rời Hình",
+
+        // --- ĐỐI LUYỆN MỚI ---
+        "Đối luyện 66: Gánh Nước Tưới Hoa",
+        "Đối luyện 67: Theo Đường Mà Đi",
+        "Đối luyện 68: Theo Đường Mà Chạy",
+        "Đối luyện 69: Đón Lấy Cuồng Phong",
+        "Đối luyện 70: Hoa Mai Song chưởng",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn phần cũ 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1",
+        "Thái Hư Khí Công"
+    ],
+    "Cấp 18 - Bạch Đai": [
+        // --- CÁC BÀI QUYỀN, BINH KHÍ & NGHIÊN CỨU MỚI ---
+        "Vô Tướng Trượng Pháp",
+        "Nhuyễn cân Pháp",
+        "Chỉ định phân 5 thế trong mỗi bài",
+        "Lý thuyết Bạch đai",
+        "Làm tiểu luận",
+        "Nghiên cứu & Chương trình huấn luyện riêng",
+
+        // --- THÂN PHÁP TỔNG HỢP 1 HOẶC 2 ---
+        "Thân pháp tổng hợp: Phi ngự",
+        "Thân pháp tổng hợp: Lăn vai sau",
+        "Thân pháp tổng hợp: Té sấp",
+        "Thân pháp tổng hợp: Bật tôm",
+        "Thân pháp tổng hợp: Té nghiêng trái",
+        "Thân pháp tổng hợp: Té nghiêng phải",
+        "Thân pháp tổng hợp: Té nổ",
+        "Thân pháp tổng hợp: Đá xoắn",
+        "Thân pháp tổng hợp: Đá lăn lưng",
+        "Thân pháp tổng hợp: Đá lăn bụng",
+        "Thân pháp tổng hợp: Lăn bánh xe",
+        "Thân pháp tổng hợp: Santo trước",
+        "Thân pháp tổng hợp 2 (Nghiên cứu/Lựa chọn)",
+
+        // --- KẾ THỪA ĐỐI LUYỆN TỪ CÁC CẤP TRƯỚC (Ôn tập & Nghiên cứu 1-70) ---
+        "Đối luyện 1: Cơn Bão Đầu Mùa",
+        "Đối luyện 2: Tiếc Một Cành Hoa", 
+        "Đối luyện 3: Tìm Chút Thân Quen",
+        "Đối luyện 4: Đón Khách Đầu Đường",
+        "Đối luyện 5: Hái Hoa Trên Cành",
+        "Đối luyện 6: Chia Tay Mưa Rơi",
+        "Đối luyện 7: Thuận Gió Bẻ Măng",
+        "Đối luyện 8: Theo Chàng Về Dinh",
+        "Đối luyện 9: Hái Lộc Đầu Xuân",
+        "Đối luyện 10: Quét Lá Sân Chùa",
+        "Đối luyện 11: Bỏ Về Xứ Xa",
+        "Đối luyện 12: Đầy Trời Mưa Hoa",
+        "Đối luyện 13: Chèo Đò Trên Sông",
+        "Đối luyện 14: Vác Củi Về Nhà",
+        "Đối luyện 15: Giữ Khách Ở Lại",
+        "Đối luyện 16: Quấn Quýt Dây Leo",
+        "Đối luyện 17: Cắm Sào Chờ Gió",
+        "Đối luyện 18: Bầy Gà Tìm Mẹ",
+        "Đối luyện 19: Ấm Áp Tình Xuân",
+        "Đối luyện 20: Hỏi Lại Cố Nhân",
+        "Đối luyện 21: Trông Ngóng Người Đi",
+        "Đối luyện 22: Đốn Củi Ngoài Sân",
+        "Đối luyện 23: Mục Đồng Giỡn Trâu",
+        "Đối luyện 24: Mở Cửa Đón Trăng",
+        "Đối luyện 25: Mời Khách Sang Sông",
+        "Đối luyện 26: Nâng Một Cành Hoa",
+        "Đối luyện 27: Quỳ Lạy Đất Trời",
+        "Đối luyện 28: Vào Vườn Ngắm Hoa",
+        "Đối luyện 29: Én Lượn Mùa Xuân",
+        "Đối luyện 30: Đôi Chim Bay Lên",
+        "Đối luyện 31: Lưu Luyến Cố Nhân",
+        "Đối luyện 32: Quà Tặng Bất Ngờ",
+        "Đối luyện 33: Hỏi Đường Rồi Đi",
+        "Đối luyện 34: Tìm Được Cố Nhân",
+        "Đối luyện 35: Đôi Rắn Tranh Mồi",
+        "Đối luyện 36: Không Thể Rời Xa",
+        "Đối luyện 37: Đôi Thỏ Vờn Trăng",
+        "Đối luyện 38: Đôi Cá Đùa Sóng",
+        "Đối luyện 39: Chưa Đành Rời Xa",
+        "Đối luyện 40: Kề Vai Ngắm Trăng",
+        "Đối luyện 41: Lỡ Bước Sa Chân",
+        "Đối luyện 42: Song Hỷ Mang Mang",
+        "Đối luyện 43: Về Mái Nhà Xưa",
+        "Đối luyện 44: Cúi Chào Nắng Mai",
+        "Đối luyện 45: Rất Nhiều Lễ Vật",
+        "Đối luyện 46: Xin Đợi Chờ Nhau",
+        "Đối luyện 47: Tiếp Khách Ân Cần",
+        "Đối luyện 48: Rắn Bay Qua Đồi",
+        "Đối luyện 49: Gió Xoáy Bên Trời",
+        "Đối luyện 50: Dẫn Bé Đi Về",
+        "Đối luyện 51: Mở Cửa Chào Khách",
+        "Đối luyện 52: Cuồn Cuộn Sóng Xô",
+        "Đối luyện 53: Duyên Dáng Mùa Xuân",
+        "Đối luyện 54: Níu Giữ Thời Gian",
+        "Đối luyện 55: Ăn Một Trả Hai",
+        "Đối luyện 56: Kéo Thuyền Về Bến",
+        "Đối luyện 57: Song Long Xuất Hải",
+        "Đối luyện 58: Chỉ Một Cành Hoa",
+        "Đối luyện 59: Xin Chút Lòng Thương",
+        "Đối luyện 60: Chặt Cành Bẻ Lá",
+        "Đối luyện 61: Bốn Chưởng Liên Hoàn",
+        "Đối luyện 62: Chim Nhảy Chuyền Cành",
+        "Đối luyện 63: Tiên Nữ Hái Đào",
+        "Đối luyện 64: Tiểu Đồng Đùa Cọp",
+        "Đối luyện 65: Bóng Không Rời Hình",
+        "Đối luyện 66: Gánh Nước Tưới Hoa",
+        "Đối luyện 67: Theo Đường Mà Đi",
+        "Đối luyện 68: Theo Đường Mà Chạy",
+        "Đối luyện 69: Đón Lấy Cuồng Phong",
+        "Đối luyện 70: Hoa Mai Song chưởng",
+
+        // --- KẾ THỪA TỰ VỆ TỪ CÁC CẤP TRƯỚC (Ôn tập 1-10) ---
+        "Tự vệ 1: Phản bóp cổ trước 1",
+        "Tự vệ 2: Phản nắm cổ áo trước 1",
+        "Tự vệ 3: Phản nắm tóc trước 1",
+        "Tự vệ 4: Phản bóp cổ trước 2",
+        "Tự vệ 5: Phản nắm cổ áo trước 2",
+        "Tự vệ 6: Phản nắm tóc trước 2",
+        "Tự vệ 7: Phản bóp cổ trước 3",
+        "Tự vệ 8: Phản nắm cổ áo trước 3",
+        "Tự vệ 9: Phản nắm tóc trước 3",
+        "Tự vệ 10: Phản nắm tóc sau 1"
+    ]    
         };
 
         let danhSachVoSinh = [];
-        let indexDangCham = -1;
+        let indexDangXuLy = -1;
 
         async function taiDanhSach() {
             const clubName = document.getElementById("clubSelect").value;
             document.getElementById("loading").style.display = "block";
             
             try {
-                // Gọi GET request đến Google Sheets
                 const response = await fetch(`${API_URL}?sheet=${clubName}`);
                 const data = await response.json();
                 
@@ -107,31 +1555,69 @@
             document.getElementById("loading").style.display = "none";
         }
 
+        // Hàm giúp rút gọn văn bản danh sách (bài thi)
+        function rutGonText(text) {
+            if (!text || text === "---" || text.trim() === "") return "<span style='color:#94a3b8;'><i>Chưa có</i></span>";
+            let arr = text.split(",").map(s => s.trim()).filter(s => s);
+            if (arr.length === 0) return "<span style='color:#94a3b8;'><i>Chưa có</i></span>";
+            if (arr.length <= 2) return text;
+            return `${arr[0]}, ${arr[1]} ... <span style="color:#3b82f6; font-size:12px; font-weight:800;">(+${arr.length - 2})</span>`;
+        }
+
+        function formatTyLe(tyLeGoc) {
+            let tyLeStr = (tyLeGoc || "0").toString().trim();
+            if (tyLeStr.includes("%")) return tyLeStr;
+            let num = parseFloat(tyLeStr);
+            if (!isNaN(num)) {
+                if (num > 0 && num <= 1) return Math.round(num * 100) + "%";
+                return Math.round(num) + "%";
+            }
+            return "0%";
+        }
+
         function hienThiBang() {
             const tbody = document.getElementById("duLieuBang");
             tbody.innerHTML = "";
             
             danhSachVoSinh.forEach((vs, index) => {
-                let tyLe = vs["Tỷ lệ hoàn thành (%)"] || "0%";
-                let mauSac = tyLe === "0%" || tyLe === "" ? "dong-do" : "dong-xanh";
+                let tyLe = formatTyLe(vs["Tỷ lệ hoàn thành (%)"]);
+                let mauSac = (tyLe === "0%") ? "dong-do" : "dong-xanh";
+
+                let linkBai = vs["Link bài dự thi"] ? `<a href="${vs["Link bài dự thi"]}" target="_blank" class="action-link">Xem</a>` : "---";
+                let linkProfile = vs["Link profile"] ? `<a href="${vs["Link profile"]}" target="_blank" class="action-link">Mở</a>` : "---";
+                
+                let daXong = vs["Những bài đã hoàn thành"] || "---";
+                let chuaXong = vs["Những bài chưa hoàn thành"] || "---";
+                let ghiChu = vs["Ghi chú"] || "---";
+
+                // Bọc ghi chú vào thẻ div để giữ nguyên dấu xuống dòng
+                let htmlGhiChu = ghiChu !== "---" 
+                    ? `<div class="box-ghi-chu">${ghiChu}</div><div style="font-size:11px; color:#94a3b8; margin-top:4px;">✏️ Sửa</div>` 
+                    : `<span style='color:#94a3b8;'><i>Trống</i></span> ✏️`;
 
                 let tr = document.createElement("tr");
                 tr.className = mauSac;
-                tr.onclick = () => moBangChamDiem(index);
+                
                 tr.innerHTML = `
                     <td>${vs["STT"]}</td>
-                    <td><b>${vs["Họ và tên"]}</b></td>
-                    <td>${vs["Cấp đai hiện tại"]}</td>
-                    <td><small>${vs["Những bài đã hoàn thành"] || "Chưa có"}</small></td>
-                    <td><b>${tyLe}</b></td>
-                    <td>${vs["Ngày cập nhật"] || ""}</td>
+                    <td style="font-weight: 700; color: #0f172a;">${vs["Họ và tên"]}</td>
+                    <td onclick="moBangChamDiem(${index})" class="clickable-cell" title="Nhấp để chấm điểm"><span class="badge-cap-dai">${vs["Cấp đai hiện tại"]} ✏️</span></td>
+                    <td onclick="xemChiTiet(${index}, 'Đã hoàn thành')" class="clickable-cell" style="font-size:13px;" title="Nhấp xem chi tiết">${rutGonText(daXong)}</td>
+                    <td onclick="xemChiTiet(${index}, 'Chưa hoàn thành')" class="clickable-cell" style="font-size:13px; color:#ef4444;" title="Nhấp xem chi tiết">${rutGonText(chuaXong)}</td>
+                    <td style="text-align: center;"><span class="badge-ty-le">${tyLe}</span></td>
+                    <td>${linkBai}</td>
+                    <td>${linkProfile}</td>
+                    <td onclick="suaGhiChu(${index})" class="clickable-cell" style="font-size:13px; vertical-align:top;" title="Nhấp xem/sửa ghi chú">${htmlGhiChu}</td>
+                    <td style="font-size:13px; color:#64748b; font-weight:600;">${vs["Ngày cập nhật"] || "---"}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // --- CÁC HÀM MỞ POPUP ---
+
         function moBangChamDiem(index) {
-            indexDangCham = index;
+            indexDangXuLy = index;
             const vs = danhSachVoSinh[index];
             const capDai = vs["Cấp đai hiện tại"];
             
@@ -140,15 +1626,13 @@
                 return;
             }
 
-            document.getElementById("modalTitle").innerText = `Chấm điểm: ${vs["Họ và tên"]} - ${capDai}`;
+            document.getElementById("modalTitleChamDiem").innerHTML = `📋 Đánh giá: <span style="color:#3b82f6;">${vs["Họ và tên"]}</span>`;
             
             const listDiv = document.getElementById("modalCheckboxList");
             listDiv.innerHTML = "";
-            
-            const baiThiList = CHUNG_TRINH_HOC[capDai];
             const cacBaiDaTick = (vs["Những bài đã hoàn thành"] || "").split(", ");
 
-            baiThiList.forEach((bai, idx) => {
+            CHUNG_TRINH_HOC[capDai].forEach((bai, idx) => {
                 const isChecked = cacBaiDaTick.includes(bai) ? "checked" : "";
                 listDiv.innerHTML += `
                     <label class="checkbox-item">
@@ -157,41 +1641,92 @@
                     </label>
                 `;
             });
-
-            document.getElementById("myModal").style.display = "flex";
+            document.getElementById("modalChamDiem").style.display = "flex";
         }
 
-        function dongModal() {
-            document.getElementById("myModal").style.display = "none";
+        function xemChiTiet(index, loai) {
+            const vs = danhSachVoSinh[index];
+            let duLieu = (loai === 'Đã hoàn thành') ? vs["Những bài đã hoàn thành"] : vs["Những bài chưa hoàn thành"];
+            
+            if (!duLieu || duLieu === "---") {
+                alert("Chưa có dữ liệu để hiển thị!");
+                return;
+            }
+
+            let arr = duLieu.split(",").map(s => s.trim()).filter(s => s);
+            document.getElementById("modalTitleChiTiet").innerHTML = `🔍 Các bài <span style="color:${loai==='Đã hoàn thành'?'#10b981':'#ef4444'};">${loai}</span>`;
+            
+            const listChiTiet = document.getElementById("danhSachChiTiet");
+            listChiTiet.innerHTML = "";
+            arr.forEach(bai => {
+                listChiTiet.innerHTML += `<li>${bai}</li>`;
+            });
+            
+            document.getElementById("modalChiTiet").style.display = "flex";
+        }
+
+        function suaGhiChu(index) {
+            indexDangXuLy = index;
+            const vs = danhSachVoSinh[index];
+            let ghiChuHienTai = vs["Ghi chú"] === "---" ? "" : vs["Ghi chú"];
+            document.getElementById("txtGhiChu").value = ghiChuHienTai;
+            document.getElementById("modalGhiChu").style.display = "flex";
+        }
+
+        function dongModal(idModal) {
+            document.getElementById(idModal).style.display = "none";
+        }
+
+        // --- CÁC HÀM LƯU DỮ LIỆU LÊN MÂY ---
+
+        async function luuGhiChu() {
+            let btn = document.getElementById("btnSaveGhiChu");
+            btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
+
+            const vs = danhSachVoSinh[indexDangXuLy];
+            const clubName = document.getElementById("clubSelect").value;
+            const ghiChuMoi = document.getElementById("txtGhiChu").value.trim();
+
+            const payload = {
+                action: "ghiChu",
+                sheet: clubName,
+                rowIndex: vs.rowIndex,
+                ghiChu: ghiChuMoi
+            };
+
+            try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                vs["Ghi chú"] = ghiChuMoi || "---";
+                hienThiBang();
+                dongModal('modalGhiChu');
+            } catch (error) { alert("Lỗi khi lưu Ghi Chú!"); }
+            
+            btn.innerText = "💾 Lưu Ghi Chú"; btn.disabled = false;
         }
 
         async function luuDanhGia() {
-            document.getElementById("btnSave").innerText = "Đang lưu...";
+            let btn = document.getElementById("btnSaveChamDiem");
+            btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
             
-            const vs = danhSachVoSinh[indexDangCham];
+            const vs = danhSachVoSinh[indexDangXuLy];
             const clubName = document.getElementById("clubSelect").value;
             const capDai = vs["Cấp đai hiện tại"];
             const baiThiList = CHUNG_TRINH_HOC[capDai];
             
-            let baiDaXong = [];
-            let baiChuaXong = [];
-
+            let baiDaXong = []; let baiChuaXong = [];
             baiThiList.forEach((bai, idx) => {
-                if (document.getElementById(`chk_${idx}`).checked) {
-                    baiDaXong.push(bai);
-                } else {
-                    baiChuaXong.push(bai);
-                }
+                if (document.getElementById(`chk_${idx}`).checked) baiDaXong.push(bai);
+                else baiChuaXong.push(bai);
             });
 
             const tyLe = Math.round((baiDaXong.length / baiThiList.length) * 100) + "%";
             const now = new Date();
-            const timeString = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
+            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} - ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()}`;
 
-            // Gói dữ liệu để gửi lên Google Sheets
             const payload = {
+                action: "chamDiem",
                 sheet: clubName,
-                rowIndex: vs.rowIndex, // Rất quan trọng để biết cập nhật dòng nào
+                rowIndex: vs.rowIndex,
                 daXong: baiDaXong.join(", "),
                 chuaXong: baiChuaXong.join(", "),
                 tyLe: tyLe,
@@ -199,25 +1734,17 @@
             };
 
             try {
-                // Gọi POST request để ghi đè vào Sheets
-                await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                
-                // Cập nhật lại giao diện ngay lập tức
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                 vs["Những bài đã hoàn thành"] = payload.daXong;
                 vs["Những bài chưa hoàn thành"] = payload.chuaXong;
                 vs["Tỷ lệ hoàn thành (%)"] = payload.tyLe;
                 vs["Ngày cập nhật"] = payload.ngayCapNhat;
                 
                 hienThiBang();
-                dongModal();
-            } catch (error) {
-                alert("Lỗi khi lưu dữ liệu!");
-            }
+                dongModal('modalChamDiem');
+            } catch (error) { alert("Lỗi khi lưu dữ liệu!"); }
             
-            document.getElementById("btnSave").innerText = "💾 Lưu Lên Mây";
+            btn.innerText = "💾 Lưu Kết Quả"; btn.disabled = false;
         }
     </script>
 </body>
