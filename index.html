@@ -73,7 +73,50 @@
         button.btn-close:hover { background-color: #cbd5e1; }
         button.btn-save { background-color: #10b981; color: white; border: none; padding: 10px 20px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
         button.btn-save:hover { background-color: #059669; transform: translateY(-2px); }
+        .btn-ios-version {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 15px;
+            font-family: 'Nunito';
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
 
+        .btn-ios-version:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-ios-version:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive cho mobile */
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .btn-ios-version {
+                width: 100%;
+                justify-content: center;
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
         /* Tiện ích để ép xuống dòng cho cột ghi chú */
         .box-ghi-chu { 
             white-space: pre-line; 
@@ -145,6 +188,7 @@
 <option value="51. CLB Linh Bửu - Võ Đường Phước Quang">📍 51. CLB Linh Bửu - Võ Đường Phước Quang</option>
             </select>
             <button class="btn-primary" onclick="taiDanhSach()">🔄 Tải Danh Sách</button>
+             <a href="http://lelevietnam99.github.io/CHAMTIENDO_IOS/" target="_blank" class="btn-ios-version">📱 Phiên bản IOS</a>
         </div>
 
         <div id="loading">⏳ Đang đồng bộ dữ liệu từ đám mây...</div>
@@ -174,6 +218,11 @@
     <div class="modal-overlay" id="modalChamDiem">
         <div class="modal">
             <h3 id="modalTitleChamDiem">📋 Đánh giá Võ sinh</h3>
+             <!-- Nút Chọn Tất Cả / Bỏ chọn Tất Cả -->
+            <div style="margin-bottom: 15px; padding: 10px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #10b981;">
+                <button onclick="chonTatCa()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 10px;">✅ Chọn Tất Cả</button>
+                <button onclick="boChonTatCa()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">❌ Bỏ Chọn Tất Cả</button>
+            </div>
             <div id="modalCheckboxList"></div>
             <div class="modal-footer">
                 <button class="btn-close" onclick="dongModal('modalChamDiem')">Đóng</button>
@@ -1670,7 +1719,18 @@
             
             document.getElementById("modalChiTiet").style.display = "flex";
         }
+          function chonTatCa() {
+            const checkboxes = document.querySelectorAll('#modalCheckboxList input[type="checkbox"]');
+            checkboxes.forEach(chk => chk.checked = true);
+            console.log(`✅ Đã chọn ${checkboxes.length} bài`);
+        }
 
+        // Hàm bỏ chọn tất cả checkbox
+        function boChonTatCa() {
+            const checkboxes = document.querySelectorAll('#modalCheckboxList input[type="checkbox"]');
+            checkboxes.forEach(chk => chk.checked = false);
+            console.log(`❌ Đã bỏ chọn ${checkboxes.length} bài`);
+        }
         function suaGhiChu(index) {
             indexDangXuLy = index;
             const vs = danhSachVoSinh[index];
